@@ -20,5 +20,27 @@
         "iconUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://anichin.club&size=%size%",
         "apiVersion": 1,
         "fileHash": "sha256-e7d5eec91431da04f250f68f1a705b0e350e29a9ef35a11114cd6c1fba5fd377"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/Makairamei/Plugin21-09/builds/AnimeSailProvider.cs3",
+        "status": 1,
+        "version": 20,
+        "name": "AnimeSailProvider",
+        "internalName": "AnimeSailProvider",
+        "authors": [
+            "sad25kag"
+        ],
+        "description": "AnimeSail \u2014 domain auto (v1.animesail.xyz) + Pixel popup decode",
+        "fileSize": 71636,
+        "repositoryUrl": "https://github.com/Makairamei/Plugin21-09",
+        "language": "id",
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime",
+            "OVA"
+        ],
+        "iconUrl": "https://aghanim.xyz/wp-content/themes/animesail/assets/images/ico.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-ba14db0dffa6f806c16035a0d016c7862ce6ea431ca1555ae258fcc90950e998"
     }
 ]
