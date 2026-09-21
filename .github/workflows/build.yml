@@ -1,0 +1,142 @@
+name: Build
+
+concurrency:
+  group: "build"
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: src
+
+      - name: Checkout builds branch
+        uses: actions/checkout@v4
+        with:
+          ref: builds
+          path: builds
+
+      - name: Detect changed plugins
+        id: changed
+        run: |
+          cd $GITHUB_WORKSPACE/src
+
+          all_plugins=""
+          for dir in */; do
+            dir="${dir%/}"
+            if [ -f "$dir/build.gradle.kts" ] && [ "$dir" != "buildSrc" ]; then
+              all_plugins="$all_plugins $dir"
+            fi
+          done
+          all_plugins=$(echo $all_plugins | xargs)
+
+          before="${{ github.event.before }}"
+          plugins=""
+
+          if [ -n "$before" ] && [ "$before" != "0000000000000000000000000000000000000000" ] && git cat-file -e "${before}^{commit}" 2>/dev/null; then
+            paths=$(git diff --name-only "$before" "$GITHUB_SHA")
+            echo "Changed paths since $before:"
+            echo "$paths"
+
+            for dir in $all_plugins; do
+              if echo "$paths" | grep -q "^${dir}/"; then
+                plugins="$plugins $dir"
+              fi
+            done
+
+            # Perubahan pada toolchain / workflow / file root => bangun ulang semuanya
+            if echo "$paths" | grep -qE '^[^/]+$|^gradle/|^gradle\.|^\.github/'; then
+              echo "Root build files changed, rebuilding all plugins."
+              plugins="$all_plugins"
+            fi
+          else
+            echo "No usable previous commit (first push / force push), rebuilding all plugins."
+            plugins="$all_plugins"
+          fi
+
+          plugins=$(echo $plugins | xargs)
+
+          echo "Plugins detected in repo: $all_plugins"
+          echo "Plugins to build: $plugins"
+
+          echo "plugins=$plugins" >> $GITHUB_OUTPUT
+          echo "all_plugins=$all_plugins" >> $GITHUB_OUTPUT
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 21
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Changed Plugins
+        run: |
+          cd $GITHUB_WORKSPACE/src
+          chmod +x gradlew
+
+          plugins="${{ steps.changed.outputs.plugins }}"
+          all_plugins="${{ steps.changed.outputs.all_plugins }}"
+
+          if [ -z "$plugins" ]; then
+            echo "No plugin changes detected, nothing to build."
+            exit 0
+          fi
+
+          # Langkah 1: pulihkan binary .cs3 lama milik plugin yang TIDAK berubah,
+          # supaya makePluginsJson tetap menuliskan metadata lengkap.
+          for plugin in $all_plugins; do
+            if [[ ! " $plugins " =~ " $plugin " ]]; then
+              echo "Restoring cached binary for unchanged plugin: $plugin"
+              mkdir -p "$plugin/build"
+              if [ -f "$GITHUB_WORKSPACE/builds/$plugin.cs3" ]; then
+                cp "$GITHUB_WORKSPACE/builds/$plugin.cs3" "$plugin/build/$plugin.cs3"
+              elif [ -f "$GITHUB_WORKSPACE/builds/${plugin}-debug.cs3" ]; then
+                cp "$GITHUB_WORKSPACE/builds/${plugin}-debug.cs3" "$plugin/build/${plugin}-debug.cs3"
+              else
+                cp $GITHUB_WORKSPACE/builds/*$plugin*.cs3 "$plugin/build/" 2>/dev/null || true
+              fi
+            fi
+          done
+
+          # Langkah 2: kompilasi hanya plugin yang berubah.
+          for plugin in $plugins; do
+            echo "======================="
+            echo "Building $plugin"
+            echo "======================="
+
+            ./gradlew ":$plugin:make"
+
+            mkdir -p $GITHUB_WORKSPACE/builds
+            find "$plugin/build" -name "*.cs3" -exec cp {} $GITHUB_WORKSPACE/builds \;
+          done
+
+          # Langkah 3: tulis ulang metadata plugins.json.
+          ./gradlew makePluginsJson
+          cp build/plugins.json $GITHUB_WORKSPACE/builds/
+
+      - name: Push builds
+        run: |
+          cd $GITHUB_WORKSPACE/builds
+
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+
+          git add .
+          git commit -m "Build updated plugins: ${{ steps.changed.outputs.plugins }} ($GITHUB_SHA)" || exit 0
+          git push
