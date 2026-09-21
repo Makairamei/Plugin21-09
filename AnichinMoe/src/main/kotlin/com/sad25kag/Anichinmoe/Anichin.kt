@@ -163,7 +163,7 @@ class Anichin : MainAPI() {
             }
     }
 
-    private fun buildLoadResponse(
+    private suspend fun buildLoadResponse(
         document: Document,
         url: String,
         currentEpisodeUrl: String?,
