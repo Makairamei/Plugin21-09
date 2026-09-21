@@ -1,0 +1,24 @@
+[
+    {
+        "url": "https://raw.githubusercontent.com/Makairamei/Plugin21-09/builds/AnichinMoe.cs3",
+        "status": 1,
+        "version": 53,
+        "name": "AnichinMoe",
+        "internalName": "AnichinMoe",
+        "authors": [
+            "sad25kag"
+        ],
+        "description": "Anichin Moe \u2014 DM first, Rumble\u22641080, no Turbo1080",
+        "fileSize": 109276,
+        "repositoryUrl": "https://github.com/Makairamei/Plugin21-09",
+        "language": "id",
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime",
+            "Cartoon"
+        ],
+        "iconUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://anichin.club&size=%size%",
+        "apiVersion": 1,
+        "fileHash": "sha256-e7d5eec91431da04f250f68f1a705b0e350e29a9ef35a11114cd6c1fba5fd377"
+    }
+]
