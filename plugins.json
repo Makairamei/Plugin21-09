@@ -2,14 +2,14 @@
     {
         "url": "https://raw.githubusercontent.com/Makairamei/Plugin21-09/builds/AnichinMoe.cs3",
         "status": 1,
-        "version": 53,
+        "version": 54,
         "name": "AnichinMoe",
         "internalName": "AnichinMoe",
         "authors": [
             "sad25kag"
         ],
-        "description": "Anichin Moe \u2014 DM first, Rumble\u22641080, no Turbo1080",
-        "fileSize": 109276,
+        "description": "Anichin Moe \u2014 Rilisan Terbaru fix, DM first, Rumble\u22641080, no Turbo1080",
+        "fileSize": 109296,
         "repositoryUrl": "https://github.com/Makairamei/Plugin21-09",
         "language": "id",
         "tvTypes": [
@@ -19,19 +19,19 @@
         ],
         "iconUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://anichin.club&size=%size%",
         "apiVersion": 1,
-        "fileHash": "sha256-e7d5eec91431da04f250f68f1a705b0e350e29a9ef35a11114cd6c1fba5fd377"
+        "fileHash": "sha256-6c6b357aed8a59c3ec131e4272f7db465bd14173d19de12b582e84855a05ec7b"
     },
     {
         "url": "https://raw.githubusercontent.com/Makairamei/Plugin21-09/builds/AnimeSailProvider.cs3",
         "status": 1,
-        "version": 20,
+        "version": 21,
         "name": "AnimeSailProvider",
         "internalName": "AnimeSailProvider",
         "authors": [
             "sad25kag"
         ],
         "description": "AnimeSail \u2014 domain auto (v1.animesail.xyz) + Pixel popup decode",
-        "fileSize": 71636,
+        "fileSize": 71639,
         "repositoryUrl": "https://github.com/Makairamei/Plugin21-09",
         "language": "id",
         "tvTypes": [
@@ -41,6 +41,6 @@
         ],
         "iconUrl": "https://aghanim.xyz/wp-content/themes/animesail/assets/images/ico.png",
         "apiVersion": 1,
-        "fileHash": "sha256-ba14db0dffa6f806c16035a0d016c7862ce6ea431ca1555ae258fcc90950e998"
+        "fileHash": "sha256-4184f78994cc84059f47fe797f489dc04040e6f680f3250f1c404c9afe7e6f4f"
     }
 ]
