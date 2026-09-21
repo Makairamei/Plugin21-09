@@ -99,9 +99,11 @@ class TurnstileInterceptor(private val targetCookie: String = "_as_turnstile") :
             wv.loadUrl(url)
         }
 
-        // Wait up to 45s for turnstile / clearance cookie
-        for (i in 0 until 45) {
-            Thread.sleep(1000)
+        // Tunggu cookie turnstile / clearance. Dicek tiap 250ms supaya tidak menambah
+        // diam-diam hingga 1 detik setiap kali, dan dibatasi 20s (dulu 45s) agar halaman
+        // pertama tidak terasa menggantung terlalu lama kalau challenge gagal.
+        for (i in 0 until 80) {
+            Thread.sleep(250)
             val cookies = cookieManager.getCookie(domainUrl) ?: ""
             if (cookies.contains(targetCookie) || cookies.contains("cf_clearance")) {
                 cookieManager.flush()

@@ -60,7 +60,12 @@ class Anichin : MainAPI() {
                 .firstOrNull { box ->
                     box.selectFirst("div.releases")?.text().orEmpty().contains(sectionTitle, true)
                 }
-                ?.select("div.listupd > article")
+                // Artikel di widget homepage dibungkus <div class="excstf">, jadi selector
+                // "div.listupd > article" (anak langsung) mengembalikan NOL item dan section
+                // ini tampil kosong walaupun situsnya berisi. Ambil div.listupd widget ini
+                // lalu semua <article> di dalamnya.
+                ?.selectFirst("div.listupd")
+                ?.select("article")
                 ?.mapNotNull { it.toSearchResult() }
                 .orEmpty()
 
@@ -75,7 +80,8 @@ class Anichin : MainAPI() {
         }
 
         val document = app.get("${mainUrl}/${request.data}&page=$page").document
-        val home = document.select("div.listupd > article").mapNotNull { it.toSearchResult() }
+        val home = document.select("div.listupd > article, div.listupd > div.excstf > article")
+            .mapNotNull { it.toSearchResult() }
 
         return newHomePageResponse(
             list = HomePageList(
@@ -109,7 +115,7 @@ class Anichin : MainAPI() {
         val document = app.get(url).document
 
         val results = document
-            .select("div.listupd > article")
+            .select("div.listupd > article, div.listupd > div.excstf > article")
             .mapNotNull { it.toSearchResult() }
 
         val hasNext = document.selectFirst(
