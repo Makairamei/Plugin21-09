@@ -84,6 +84,32 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Pin ke cmdline-tools yang sudah terpasang di image runner (menghindari
+          # unduhan ulang + langkah "accept licenses" yang gagal di image terbaru).
+          cmdline-tools-version: 11076708
+          accept-android-sdk-licenses: false
+          packages: "platform-tools"
+
+      - name: Ensure Android SDK platform
+        run: |
+          set -x
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          echo "SDK_ROOT=$SDK_ROOT"
+          SDKMANAGER=$(ls -d "$SDK_ROOT"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | tail -1)
+          echo "SDKMANAGER=$SDKMANAGER"
+
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager tidak ditemukan"; exit 1
+          fi
+
+          yes 2>/dev/null | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses > /tmp/licenses.log 2>&1 || true
+          tail -n 3 /tmp/licenses.log || true
+
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
+
+          echo "--- platforms ---"; ls "$SDK_ROOT/platforms" || true
+          echo "--- build-tools ---"; ls "$SDK_ROOT/build-tools" || true
 
       - name: Build Changed Plugins
         run: |
