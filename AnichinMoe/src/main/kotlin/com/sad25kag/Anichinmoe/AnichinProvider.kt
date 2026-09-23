@@ -24,8 +24,13 @@ class AnichinProvider : Plugin() {
         registerExtractorAPI(StreamRubyNet())
         registerExtractorAPI(Rubyvidhub())
 
-        // VidGuard
+        // VidGuard — every mirror host needs its own registration, `loadExtractor` only
+        // matches an API whose mainUrl is a prefix of the link (listeamed.net is what
+        // Anichin actually embeds for "Vidguard").
         registerExtractorAPI(Vidguardto())
+        registerExtractorAPI(Vidguardto1())
+        registerExtractorAPI(Vidguardto2())
+        registerExtractorAPI(Vidguardto3())
 
         // Earnvids / VidHide family
         registerExtractorAPI(Morencius())
@@ -59,6 +64,9 @@ class AnichinProvider : Plugin() {
 
         // D-Tube
         registerExtractorAPI(Dtube())
+
+        // Odysee / LBRY
+        registerExtractorAPI(Odysee())
 
         // Anichin proxy (OK.ru / Dailymotion wrapper)
         registerExtractorAPI(AnichinPlayerProxy())

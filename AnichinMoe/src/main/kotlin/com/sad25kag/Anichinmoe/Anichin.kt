@@ -269,23 +269,25 @@ class Anichin : MainAPI() {
     ): Boolean {
         val episodeUrl = fixUrl(data)
         val document = app.get(episodeUrl, referer = mainUrl).document
-        val candidates = linkedSetOf<Pair<String, String>>()
+        // Third slot = "listed by the site itself": the mirror <option> list is authoritative,
+        // so those entries are still tried when their host is newer than our host whitelist.
+        val candidates = linkedSetOf<Triple<String, String, Boolean>>()
         // Thread-safe: loadLinks uses parallel amap — plain LinkedHashSet races drop hosts
         val visited = java.util.Collections.synchronizedSet(linkedSetOf<String>())
         val emitted = java.util.Collections.synchronizedSet(linkedSetOf<String>())
 
-        fun addCandidate(value: String?, label: String = "Anichin") {
+        fun addCandidate(value: String?, label: String = "Anichin", listed: Boolean = false) {
             if (value.isNullOrBlank()) return
             val cleanLabel = cleanServerLabel(label)
             decodeServerUrls(value).forEach { candidate ->
-                candidates.add(candidate to cleanLabel)
+                candidates.add(Triple(candidate, cleanLabel, listed))
             }
         }
 
         // Mirror <option> first — these are the real named servers (OK.ru, Streamruby, …)
         document.select(".mobius option[value], select.mirror option[value], select option[value], option[value]").forEach { server ->
             val label = server.text().trim().ifBlank { "Anichin" }
-            addCandidate(server.attr("value"), label)
+            addCandidate(server.attr("value"), label, listed = true)
         }
 
         // Default iframe only if not already covered by a mirror option (avoids extra "Anichin N" junk)
@@ -304,7 +306,11 @@ class Anichin : MainAPI() {
                 norm.contains("dailymotion", true) -> "Dailymotion"
                 else -> cleanServerLabel(URI(norm).host?.substringBefore(".")?.replaceFirstChar { it.uppercase() } ?: "Player")
             }
-            addCandidate(src, hostLabel)
+            // The site's own player container counts as "listed" too.
+            val inPlayerContainer = element.parents().any {
+                it.id() == "pembed" || it.hasClass("player-embed") || it.hasClass("video-content")
+            }
+            addCandidate(src, hostLabel, listed = inPlayerContainer)
             knownUrls.add(norm)
         }
 
@@ -332,7 +338,7 @@ class Anichin : MainAPI() {
                 host.contains("turbovid") -> "TurboVIP"
                 else -> cleanServerLabel(host.substringBefore(".").ifBlank { "Player" })
             }
-            candidates.add(raw to label)
+            candidates.add(Triple(raw, label, false))
         }
 
         val countedCallback: (ExtractorLink) -> Unit = fun(link: ExtractorLink) {
@@ -365,12 +371,18 @@ class Anichin : MainAPI() {
         }
 
         val topLevelCandidates = candidates
-            .mapNotNull { (url, label) -> normalizeAnyUrl(url, episodeUrl)?.let { it to label } }
-            .filterNot { (url, _) -> isNoiseFrame(url) }
-            .filter { (url, label) -> isPrimaryPlaybackHost(url, label) }
+            .mapNotNull { (url, label, listed) ->
+                normalizeAnyUrl(url, episodeUrl)?.let { Triple(it, label, listed) }
+            }
+            .filterNot { (url, _, _) -> isNoiseFrame(url) }
+            // Ad networks stay out even when the page itself lists them.
+            .filterNot { (url, _, _) -> isAdsOnlyUrl(url) }
+            // Servers the page itself lists are always attempted — an unknown/new host used to
+            // be dropped here silently, which is why a live server could look "dead".
+            .filter { (url, label, listed) -> listed || isPrimaryPlaybackHost(url, label) }
             .distinctBy { it.first }
             .sortedWith(
-                compareBy<Pair<String, String>> { candidatePriority(it.first, it.second) }
+                compareBy<Triple<String, String, Boolean>> { candidatePriority(it.first, it.second) }
                     .thenBy { it.second.lowercase() }
                     .thenBy { it.first }
             )
@@ -378,7 +390,7 @@ class Anichin : MainAPI() {
 
         // Parallel resolve (amap) so slow Rumble/DNS never blocks OK.ru / StreamRuby / DM.
         // Each host isolated with try/catch; visited/emitted are synchronized.
-        topLevelCandidates.amap { (url, label) ->
+        topLevelCandidates.amap { (url, label, _) ->
             try {
                 resolveVideoCandidate(
                     url = url,
@@ -726,6 +738,8 @@ class Anichin : MainAPI() {
             value.contains("turbovidhls") ||
             value.contains("turboviplay") ||
             value.contains("d.tube") ||
+            value.contains("odysee") ||
+            value.contains("lbry") ||
             value.contains("anichin-player.web.id") ||
             value.contains("streamruby") ||
             value.contains("rubyvidhub") ||
@@ -775,16 +789,17 @@ class Anichin : MainAPI() {
             value.contains("ok.ru") || value.contains("odnoklassniki.ru") ||
                 (value.contains("anichin-player") && value.contains("ok=")) -> 1
             value.contains("streamruby") || value.contains("rubyvidhub") -> 2
-            value.contains("morencius") || value.contains("earnvids") || value.contains("vidhide") -> 3
-            value.contains("rpmshare") || value.contains("rpmvid") || value.contains("rpmplay") -> 4
+            value.contains("odysee") || value.contains("lbry") -> 3
+            value.contains("morencius") || value.contains("earnvids") || value.contains("vidhide") -> 4
+            value.contains("rpmshare") || value.contains("rpmvid") || value.contains("rpmplay") -> 5
             value.contains("abyssplayer") || value.contains("newplayr") ||
-                value.contains("streamhg") || value.contains("streamwish") -> 5
-            value.contains("vidguard") -> 6
-            value.contains("dood") || value.contains("playmogo") -> 7
+                value.contains("streamhg") || value.contains("streamwish") -> 6
+            value.contains("vidguard") -> 7
+            value.contains("dood") || value.contains("playmogo") -> 8
             // TurboVIP often remote-fail at high Q — low priority (and 1080 filtered)
-            value.contains("turbovidhls") || value.contains("turboviplay") || value.contains("turbo") -> 8
-            value.contains("rumble") -> 9
-            value.contains("blogger") || value.contains("blogspot") || value.contains("google") -> 10
+            value.contains("turbovidhls") || value.contains("turboviplay") || value.contains("turbo") -> 9
+            value.contains("rumble") -> 10
+            value.contains("blogger") || value.contains("blogspot") || value.contains("google") -> 11
             else -> 12
         }
     }
@@ -892,6 +907,11 @@ class Anichin : MainAPI() {
         "turbovidhls.com",
         "turboviplay.com",
         "d.tube",
+        "odysee.com",
+        "vidguard.to",
+        "listeamed.net",
+        "bembed.net",
+        "vgfplay.com",
         "rumble.com",
         "rubyvidhub.com",
         "streamruby.com",

@@ -84,7 +84,9 @@ internal fun isJunkStreamUrl(url: String, nameHint: String = ""): Boolean {
         u.contains("iframes-") ||
         u.contains("i-frame") ||
         u.contains("iframe-stream") ||
-        Regex("""/(?:i|iframe)s?\d*(?:/|\.m3u8)""").containsMatchIn(u)
+        // `\d+` is required: a bare `/i/` path segment is a normal CDN directory
+        // (Rumble's `…/6/i/SS6iz.baa.tar` ladder lives there).
+        Regex("""/(?:i|iframe)s?\d+(?:/|\.m3u8)""").containsMatchIn(u)
 }
 
 /**

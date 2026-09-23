@@ -1,7 +1,7 @@
-version = 54
+version = 55
 
 cloudstream {
-    description = "Anichin Moe — Rilisan Terbaru fix, DM first, Rumble≤1080, no Turbo1080"
+    description = "Anichin Moe — Rilisan Terbaru fix, DM first, Rumble ladder (240/360/480/720) + auto, no Turbo1080"
     language = "id"
     authors = listOf("sad25kag")
     status = 1
