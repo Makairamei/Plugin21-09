@@ -65,9 +65,6 @@ class AnichinProvider : Plugin() {
         // D-Tube
         registerExtractorAPI(Dtube())
 
-        // Odysee / LBRY
-        registerExtractorAPI(Odysee())
-
         // Anichin proxy (OK.ru / Dailymotion wrapper)
         registerExtractorAPI(AnichinPlayerProxy())
 

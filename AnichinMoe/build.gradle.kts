@@ -1,4 +1,4 @@
-version = 55
+version = 56
 
 cloudstream {
     description = "Anichin Moe — Rilisan Terbaru fix, DM first, Rumble ladder (240/360/480/720) + auto, no Turbo1080"

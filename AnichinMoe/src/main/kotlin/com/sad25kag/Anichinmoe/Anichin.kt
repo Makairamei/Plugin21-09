@@ -738,8 +738,6 @@ class Anichin : MainAPI() {
             value.contains("turbovidhls") ||
             value.contains("turboviplay") ||
             value.contains("d.tube") ||
-            value.contains("odysee") ||
-            value.contains("lbry") ||
             value.contains("anichin-player.web.id") ||
             value.contains("streamruby") ||
             value.contains("rubyvidhub") ||
@@ -789,17 +787,16 @@ class Anichin : MainAPI() {
             value.contains("ok.ru") || value.contains("odnoklassniki.ru") ||
                 (value.contains("anichin-player") && value.contains("ok=")) -> 1
             value.contains("streamruby") || value.contains("rubyvidhub") -> 2
-            value.contains("odysee") || value.contains("lbry") -> 3
-            value.contains("morencius") || value.contains("earnvids") || value.contains("vidhide") -> 4
-            value.contains("rpmshare") || value.contains("rpmvid") || value.contains("rpmplay") -> 5
+            value.contains("morencius") || value.contains("earnvids") || value.contains("vidhide") -> 3
+            value.contains("rpmshare") || value.contains("rpmvid") || value.contains("rpmplay") -> 4
             value.contains("abyssplayer") || value.contains("newplayr") ||
-                value.contains("streamhg") || value.contains("streamwish") -> 6
-            value.contains("vidguard") -> 7
-            value.contains("dood") || value.contains("playmogo") -> 8
+                value.contains("streamhg") || value.contains("streamwish") -> 5
+            value.contains("vidguard") -> 6
+            value.contains("dood") || value.contains("playmogo") -> 7
             // TurboVIP often remote-fail at high Q — low priority (and 1080 filtered)
-            value.contains("turbovidhls") || value.contains("turboviplay") || value.contains("turbo") -> 9
-            value.contains("rumble") -> 10
-            value.contains("blogger") || value.contains("blogspot") || value.contains("google") -> 11
+            value.contains("turbovidhls") || value.contains("turboviplay") || value.contains("turbo") -> 8
+            value.contains("rumble") -> 9
+            value.contains("blogger") || value.contains("blogspot") || value.contains("google") -> 10
             else -> 12
         }
     }
@@ -907,7 +904,6 @@ class Anichin : MainAPI() {
         "turbovidhls.com",
         "turboviplay.com",
         "d.tube",
-        "odysee.com",
         "vidguard.to",
         "listeamed.net",
         "bembed.net",
