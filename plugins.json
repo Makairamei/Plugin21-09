@@ -2,14 +2,14 @@
     {
         "url": "https://raw.githubusercontent.com/Makairamei/Plugin21-09/builds/AnichinMoe.cs3",
         "status": 1,
-        "version": 54,
+        "version": 55,
         "name": "AnichinMoe",
         "internalName": "AnichinMoe",
         "authors": [
             "sad25kag"
         ],
-        "description": "Anichin Moe \u2014 Rilisan Terbaru fix, DM first, Rumble\u22641080, no Turbo1080",
-        "fileSize": 109296,
+        "description": "Anichin Moe \u2014 Rilisan Terbaru fix, DM first, Rumble ladder (240/360/480/720) + auto, no Turbo1080",
+        "fileSize": 109196,
         "repositoryUrl": "https://github.com/Makairamei/Plugin21-09",
         "language": "id",
         "tvTypes": [
@@ -19,7 +19,7 @@
         ],
         "iconUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://anichin.club&size=%size%",
         "apiVersion": 1,
-        "fileHash": "sha256-6c6b357aed8a59c3ec131e4272f7db465bd14173d19de12b582e84855a05ec7b"
+        "fileHash": "sha256-07e2bda69f94e211c1bad915ea5e6d56f55a60cc2c1ff8d392e2c3a6c9bcfbca"
     },
     {
         "url": "https://raw.githubusercontent.com/Makairamei/Plugin21-09/builds/AnimeSailProvider.cs3",
